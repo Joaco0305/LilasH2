@@ -8,15 +8,14 @@
 @media(max-width:520px){.hero{grid-template-columns:1fr;gap:28px}.hero-copy{padding-top:10px}.hero h1{font-size:49px;max-width:380px}.hero-copy>p:not(.eyebrow){max-width:340px;font-size:14px}.hero .primary{font-size:14px}.hero-note{display:none}.hero-photo{height:290px;border-radius:100px 100px 8px 8px;margin-right:8px}.hero-photo>img{object-position:center 61%}.round-stamp{right:-15px;width:95px;height:95px;font-size:8px}.photo-label strong{font-size:26px}.menu-heading{display:block}.menu-heading>p{max-width:none;margin-top:14px}.menu-heading>p br{display:none}.menu-heading>p span{margin-left:4px}.product-grid{gap:11px}.product-visual{height:125px}.product-info{padding:13px 11px}.product-info h4{font-size:18px}.product-info p{font-size:11px;min-height:51px;margin-bottom:12px}.product-bottom{flex-wrap:wrap;gap:9px}.add-product{width:100%;justify-content:space-between;min-height:40px}.boba-banner{padding:18px 15px;gap:13px}.boba-icon{width:40px;height:40px;font-size:14px}.boba-banner h3{font-size:20px}.how{grid-template-columns:1fr}.step{display:grid;grid-template-columns:40px 1fr;column-gap:12px}.step>b{grid-row:span 2}.step h3{margin:4px 0}.cart-dialog{border-radius:0}.cart-header{padding:22px}.cart-body{padding-inline:22px}.cart-footer{padding:17px 22px}.cart-footer p{margin:8px 0 12px}.detail-content{padding:22px}.detail-bottom{gap:10px}.detail-bottom .primary{font-size:12px}.results-heading h3{font-size:21px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 
-/* Las imágenes generadas se muestran completas, sin recortar los productos. */
 .product-visual{height:auto;aspect-ratio:3 / 2}
 .product-visual img,.detail-image img{object-fit:contain}
 
-/* La cabecera mantiene el acceso al carrito a la vista durante el scroll. */
+
 .header{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:1px solid var(--line);box-shadow:0 5px 20px #432d3b08}
 html{scroll-padding-top:130px}
 
-/* Historia, misión y visión. */
+
 .story{max-width:1280px;margin:0 auto;padding:0 48px 72px;display:grid;grid-template-columns:1.15fr 1fr;gap:64px;align-items:center}
 .story-copy h2{font-size:42px;line-height:1.2;margin:16px 0 25px}
 .story-copy>p:not(.eyebrow){font-size:16px;line-height:1.85;color:var(--muted);margin-top:16px}
