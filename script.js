@@ -1,6 +1,5 @@
 'use strict';
 
-// Número del negocio con código de país, sin el signo + ni espacios.
 const WHATSAPP_NUMBER = '59175918018';
 const STORAGE_KEY = 'lilas-cart-v1';
 const SIZES = { P: 'Pequeño', M: 'Mediano', G: 'Grande', EG: 'Extra grande', U: 'Unidad' };
@@ -9,9 +8,7 @@ const CATEGORIES = [
   ['frozen', 'Frozzis'], ['hot', 'Calientitas'], ['boba', 'Con bobas'],
   ['iced', 'Tés & cafés fríos'], ['bakery', 'Repostería'], ['other', 'Otros']
 ];
-// Menú reducido para la presentación: los primeros tres productos de cada categoría.
-// Se conservan los identificadores originales para reconocer los carritos guardados.
-// Imágenes ilustrativas generadas para este proyecto y almacenadas localmente.
+
 const PRODUCTS = [];
 function addGroup(category, group, description, entries, sizes = ['P', 'M', 'G'], canBoba = true) {
   entries.forEach(([id, name, photo, prices]) => PRODUCTS.push({
