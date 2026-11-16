@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { BOBAS, SIZES } from '../data/menu.js'
-import { initialSelection, unitPrice } from '../utils/cart.js'
+import { initialSelection } from '../utils/cart.js'
 import { money, photoUrl } from '../utils/format.js'
 import Modal from './Modal.jsx'
 import QuantityControl from './QuantityControl.jsx'
 
-export default function ProductDialog({ product, onClose, onAdd }) {
+export default function ProductDialog({ product, onClose, onAdd, busy }) {
   const [selection, setSelection] = useState(() => initialSelection(product))
   const change = (key, value) => setSelection(current => ({ ...current, [key]: value }))
   return <Modal isOpen onClose={onClose} id="product-dialog" className="product-dialog" labelledBy="product-name">
@@ -18,7 +18,7 @@ export default function ProductDialog({ product, onClose, onAdd }) {
         {selection.temperature && <><label className="option-label" htmlFor="drink-temperature">¿Frío o caliente?</label><select id="drink-temperature" value={selection.temperature} onChange={event => change('temperature', event.target.value)}>{['Frío', 'Caliente'].map(value => <option key={value}>{value}</option>)}</select></>}
         {selection.included && <><label className="option-label" htmlFor="included-boba">Sabor de bobas incluidas</label><select id="included-boba" value={selection.included} onChange={event => change('included', event.target.value)}>{BOBAS.map(value => <option key={value}>{value}</option>)}</select></>}
         {product.canBoba && <><label className="option-label" htmlFor="extra-boba">¿Un extra de bobas? <span>+Bs 5.00</span></label><select id="extra-boba" value={selection.extra} onChange={event => change('extra', event.target.value)}><option value="">Sin extra de bobas</option>{BOBAS.map(value => <option key={value}>{value}</option>)}</select></>}
-        <div className="detail-bottom"><QuantityControl detail value={selection.quantity} onChange={value => change('quantity', value)} /><button className="primary" id="add-to-cart" onClick={() => onAdd(selection)}>Agregar · {money(unitPrice(selection) * selection.quantity)}</button></div>
+        <div className="detail-bottom"><QuantityControl detail disabled={busy} value={selection.quantity} onChange={value => change('quantity', value)} /><button className="primary" id="add-to-cart" disabled={busy} onClick={() => onAdd(selection)}>{busy ? 'Conectando…' : `Agregar · ${money((product.prices[selection.size] + (selection.extra ? 5 : 0)) * selection.quantity)}`}</button></div>
       </div>
     </div>
   </Modal>

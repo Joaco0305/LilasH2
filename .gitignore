@@ -1,0 +1,14 @@
+# Local configuration and secrets (examples remain versioned).
+.env
+.env.*
+!.env.example
+
+# Supabase CLI local state. Keep config.toml and migrations versioned.
+supabase/.temp/
+supabase/.branches/
+
+# Dependencies, build output and temporary working files.
+node_modules/
+dist/
+tmp/
+*.log

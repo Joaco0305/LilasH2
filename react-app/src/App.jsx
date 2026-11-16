@@ -5,6 +5,7 @@ import ProductDialog from './components/ProductDialog.jsx'
 import CartDialog from './components/CartDialog.jsx'
 import Toast from './components/Toast.jsx'
 import useCart from './hooks/useCart.js'
+import useCatalog from './hooks/useCatalog.js'
 import PageContent from './views/PageContent.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import useRoute, { navigate } from './hooks/useRoute.js'
@@ -12,6 +13,7 @@ import { ROUTES, routePath } from './routes.js'
 
 export default function App() {
   const cart = useCart()
+  const catalog = useCatalog()
   const [product, setProduct] = useState(null)
   const [cartOpen, setCartOpen] = useState(false)
   const [cartSession, setCartSession] = useState(0)
@@ -33,17 +35,17 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' })
   }, [path])
   const dismissToast = useCallback(() => setMessage(null), [])
-  const addToCart = selection => {
-    const error = cart.add(selection)
+  const addToCart = async selection => {
+    const error = await cart.add(selection)
     setMessage({ text: error || '¡Un antojo más en tu pedido!' })
     if (!error) setProduct(null)
   }
   return <>
     <SiteHeader path={path} cartCount={cart.count} onOpenCart={() => { setCartSession(value => value + 1); setCartOpen(true) }} />
-    <main ref={mainRef} tabIndex={-1} className={path === '/' ? undefined : 'route-view'}><ErrorBoundary key={path}><PageContent path={path} onSelectProduct={setProduct} /></ErrorBoundary></main>
+    <main ref={mainRef} tabIndex={-1} className={path === '/' ? undefined : 'route-view'}><ErrorBoundary key={path}><PageContent path={path} catalog={catalog} onSelectProduct={setProduct} /></ErrorBoundary></main>
     <SiteFooter />
-    {product && <ProductDialog key={product.id} product={product} onClose={() => setProduct(null)} onAdd={addToCart} />}
-    <CartDialog isOpen={cartOpen} session={cartSession} items={cart.items} total={cart.total} onClose={() => setCartOpen(false)} onChangeQuantity={cart.updateQuantity} onRemove={cart.remove} onBrowseMenu={() => { setCartOpen(false); navigate('/menu') }} />
+    {product && <ProductDialog key={product.id} product={product} busy={cart.busy} onClose={() => setProduct(null)} onAdd={addToCart} />}
+    <CartDialog isOpen={cartOpen} session={cartSession} items={cart.items} total={cart.total} savedName={cart.name} savedNotes={cart.notes} busy={cart.busy} error={cart.error} onRefresh={cart.refresh} onSave={cart.save} onClose={() => setCartOpen(false)} onChangeQuantity={cart.updateQuantity} onRemove={cart.remove} onBrowseMenu={() => { setCartOpen(false); navigate('/menu') }} />
     <Toast message={message} onDismiss={dismissToast} />
   </>
 }

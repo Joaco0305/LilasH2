@@ -1,0 +1,7 @@
+# Remote integration: only these settings are pushed; all others stay unchanged.
+project_id = "Lilas"
+[auth]
+enable_anonymous_sign_ins = true
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]

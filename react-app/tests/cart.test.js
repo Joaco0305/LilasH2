@@ -57,14 +57,27 @@ test('valida tamaños, sabores, temperaturas, unidades y almacenamiento dañado'
   assert.doesNotThrow(() => persistCart([frozzi], unavailable))
 })
 
-test('WhatsApp conserva literalmente el mensaje Legacy y codifica caracteres especiales', () => {
+test('WhatsApp conserva el detalle Legacy y añade estimación y confirmación explícitas', () => {
   const source = readFileSync(new URL('../../.docs/Legacy/script.js', import.meta.url), 'utf8')
   const context = vm.createContext({ localStorage: { getItem: () => '[]' }, document: { querySelector: selector => ({ value: selector === '#customer-name' ? '  María & José  ' : '  Sin azúcar 🍵  ' }) } })
   vm.runInContext(source.slice(0, source.indexOf("$('#categories').innerHTML")) + '\nglobalThis.compare = value => { cart = value; return buildMessage() }', context)
   const message = buildMessage([frozzi, cake], '  María & José  ', '  Sin azúcar 🍵  ')
-  assert.equal(message, context.compare([frozzi, cake]))
+  const notice = 'El precio y la disponibilidad se confirman con la cafetería antes de aceptar el pedido.'
+  const expected = context.compare([frozzi, cake]).replace('*Total: Bs 48.00*', `*Total estimado: Bs 48.00*\n${notice}`)
+  assert.equal(message, expected)
   const url = new URL(whatsappUrl([frozzi, cake], '  María & José  ', '  Sin azúcar 🍵  '))
   assert.equal(url.pathname, '/59175918018')
   assert.equal(url.searchParams.get('text'), message)
-  assert.ok(message.includes('*Total: Bs 48.00*'))
+  assert.ok(message.includes('*Total estimado: Bs 48.00*'))
+  assert.ok(message.includes(notice))
+})
+
+test('ignora precios y totales añadidos al carrito almacenado y recalcula desde el catálogo', () => {
+  const altered = { ...frozzi, price: 0.5, unitPrice: 0.5, total: 1 }
+  const items = readCart({ getItem: () => JSON.stringify([altered]) })
+  assert.equal(cartTotal(items), 40)
+  const message = buildMessage(items)
+  assert.ok(message.includes('Precio unitario: Bs 20.00 · Subtotal: Bs 40.00'))
+  assert.ok(message.includes('*Total estimado: Bs 40.00*'))
+  assert.ok(!message.includes('Bs 1.00'))
 })

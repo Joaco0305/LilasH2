@@ -1,0 +1,4 @@
+# Keep document and image bytes intact on Windows.
+*.pdf binary
+*.png binary
+*.webp binary

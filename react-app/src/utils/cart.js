@@ -1,5 +1,5 @@
 import { PRODUCTS, BOBAS, SIZES } from '../data/menu.js'
-import { STORAGE_KEY, WHATSAPP_NUMBER } from '../config.js'
+import { STORAGE_KEY, WHATSAPP_NUMBER, ORDER_CONFIRMATION_NOTICE } from '../config.js'
 import { money } from './format.js'
 
 export const productFor = item => PRODUCTS.find(product => product.id === item.id)
@@ -62,11 +62,11 @@ export function details(item) {
     item.extra && `Extra bobas: ${item.extra} (+Bs 5.00 por bebida)`].filter(Boolean).join(' · ')
 }
 
-export function buildMessage(items, name = '', notes = '') {
+export function buildMessage(items, name = '', notes = '', priceFor = unitPrice) {
   return ['¡Hola, Lilas! 🌸 Quisiera hacer este pedido:', name.trim() ? `\nNombre: ${name.trim()}` : '', '',
-    ...items.map(item => `• ${item.quantity} × ${productFor(item).name}\n  ${details(item)}\n  Precio unitario: ${money(unitPrice(item))} · Subtotal: ${money(unitPrice(item) * item.quantity)}`),
-    '', `*Total: ${money(cartTotal(items))}*`, notes.trim() ? `\nNotas: ${notes.trim()}` : '',
+    ...items.map(item => `• ${item.quantity} × ${productFor(item).name}\n  ${details(item)}\n  Precio unitario: ${money(priceFor(item))} · Subtotal: ${money(priceFor(item) * item.quantity)}`),
+    '', `*Total estimado: ${money(items.reduce((sum, item) => sum + priceFor(item) * item.quantity, 0))}*`, ORDER_CONFIRMATION_NOTICE, notes.trim() ? `\nNotas: ${notes.trim()}` : '',
     '\n¿Me confirman disponibilidad y cómo coordinar la entrega o el recojo? El total no incluye envío. ¡Gracias!'].join('\n')
 }
 
-export const whatsappUrl = (items, name, notes) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(items, name, notes))}`
+export const whatsappUrl = (items, name, notes, priceFor) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMessage(items, name, notes, priceFor))}`

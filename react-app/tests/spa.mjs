@@ -4,6 +4,7 @@ import { readFile, stat, writeFile } from 'node:fs/promises'
 import { resolve, extname, sep } from 'node:path'
 import { createRequire } from 'node:module'
 import { ROUTES } from '../src/routes.js'
+import { recordTestUser, interceptWhatsApp } from './remote-browser-helper.mjs'
 
 const require = createRequire(import.meta.url)
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright')
@@ -47,9 +48,15 @@ try {
     assert.equal(await page.locator('.header a[href="/menu"]').getAttribute('aria-current'), 'page')
     await page.locator('[data-product="p1"]').click()
     await page.locator('#add-to-cart').click()
+    await page.locator('#product-dialog').waitFor({ state: 'detached' })
+    await recordTestUser(page)
     await page.locator('#open-cart').click()
+    assert.equal(await page.locator('.total span').innerText(), 'Total estimado')
+    assert.ok((await page.locator('#order-confirmation-notice').innerText()).includes('El precio y la disponibilidad se confirman con la cafetería antes de aceptar el pedido.'))
+    assert.equal(await page.locator('#checkout').getAttribute('aria-describedby'), 'order-confirmation-notice')
     await page.locator('#customer-name').fill('María SPA')
     await page.locator('#customer-name').press('Enter')
+    await page.getByText('Datos guardados.', { exact: true }).waitFor()
     await page.locator('#order-notes').fill('Sin azúcar')
     await page.locator('#close-cart').click()
     await page.locator('.header a[href="/historia"]').click()
@@ -59,9 +66,15 @@ try {
     await page.locator('#open-cart').click()
     assert.equal(await page.locator('#customer-name').inputValue(), 'María SPA')
     assert.equal(await page.locator('#order-notes').inputValue(), 'Sin azúcar')
-    await page.evaluate(() => { window.open = url => { window.orderUrl = url } })
+    await interceptWhatsApp(page)
     await page.locator('#checkout').click()
+    await page.waitForFunction(() => window.orderUrl?.startsWith('https://wa.me/'))
     assert.ok((await page.evaluate(() => window.orderUrl)).startsWith('https://wa.me/59175918018?text='))
+    const orderMessage = new URL(await page.evaluate(() => window.orderUrl)).searchParams.get('text')
+    assert.ok(orderMessage.includes('*Total estimado: Bs 11.00*'))
+    assert.ok(orderMessage.includes('El precio y la disponibilidad se confirman con la cafetería antes de aceptar el pedido.'))
+    assert.ok((await page.locator('#checkout-status').innerText()).includes('espera la confirmación de la cafetería'))
+    assert.equal(await page.locator('#checkout-fallback').getAttribute('href'), await page.evaluate(() => window.orderUrl))
     await page.locator('#close-cart').click()
     await page.locator('.header a[href="/como-pedir"]').click()
     await page.locator('#como-pedir').waitFor()
@@ -78,7 +91,7 @@ try {
       await page.waitForFunction(expected => document.title === expected, title)
       assert.equal((await page.reload()).status(), 200)
       await page.waitForFunction(expected => document.title === expected, title)
-      assert.equal(await page.locator('#cart-count').innerText(), '1')
+      await page.waitForFunction(() => document.querySelector('#cart-count')?.textContent === '1')
     }
     await page.goto(base + '/menu/?campana=clase')
     await page.locator('#menu-title').waitFor()

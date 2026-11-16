@@ -113,7 +113,7 @@ try {
   assert.equal(target, '_blank')
   assert.equal(features, 'noopener,noreferrer')
   const message = new URL(url).searchParams.get('text')
-  for (const text of ['2 × Frozzi de mora', 'Grande (G)', 'Extra bobas: Mora', '1 × Queque de chocolate', '*Total: Bs 48.00*', 'María & José', 'Sin azúcar 🍵']) assert.ok(message.includes(text), text)
+  for (const text of ['2 × Frozzi de mora', 'Grande (G)', 'Extra bobas: Mora', '1 × Queque de chocolate', '*Total estimado: Bs 48.00*', 'El precio y la disponibilidad se confirman con la cafetería antes de aceptar el pedido.', 'María & José', 'Sin azúcar 🍵']) assert.ok(message.includes(text), text)
   assert.equal(await page.locator('#checkout-fallback').getAttribute('href'), url)
   assert.ok(await visible(page, '#checkout-status'))
   assert.equal(await page.locator('.cart-item').count(), 2)
