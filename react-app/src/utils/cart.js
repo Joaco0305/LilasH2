@@ -64,7 +64,7 @@ export function details(item) {
 
 export function buildMessage(items, name = '', notes = '', priceFor = unitPrice) {
   return ['¡Hola, Lilas! 🌸 Quisiera hacer este pedido:', name.trim() ? `\nNombre: ${name.trim()}` : '', '',
-    ...items.map(item => `• ${item.quantity} × ${productFor(item).name}\n  ${details(item)}\n  Precio unitario: ${money(priceFor(item))} · Subtotal: ${money(priceFor(item) * item.quantity)}`),
+    ...items.map(item => `• ${item.quantity} × ${item.name || productFor(item).name}\n  ${details(item)}\n  Precio unitario: ${money(priceFor(item))} · Subtotal: ${money(priceFor(item) * item.quantity)}`),
     '', `*Total estimado: ${money(items.reduce((sum, item) => sum + priceFor(item) * item.quantity, 0))}*`, ORDER_CONFIRMATION_NOTICE, notes.trim() ? `\nNotas: ${notes.trim()}` : '',
     '\n¿Me confirman disponibilidad y cómo coordinar la entrega o el recojo? El total no incluye envío. ¡Gracias!'].join('\n')
 }

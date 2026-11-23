@@ -4,8 +4,9 @@ import { money } from '../utils/format.js'
 import { ORDER_CONFIRMATION_NOTICE } from '../config.js'
 import Modal from './Modal.jsx'
 import CartItem from './CartItem.jsx'
+import OrderHistory from './OrderHistory.jsx'
 
-export default function CartDialog({ isOpen, session, items, total, savedName, savedNotes, busy, error, onRefresh, onSave, onClose, onChangeQuantity, onRemove, onBrowseMenu }) {
+export default function CartDialog({ isOpen, session, items, total, savedName, savedNotes, busy, error, onRefresh, onSave, onPrepare, onClose, onChangeQuantity, onRemove, onBrowseMenu }) {
   const [draft, setDraft] = useState(null)
   const name = draft?.name ?? savedName
   const notes = draft?.notes ?? savedNotes
@@ -14,7 +15,7 @@ export default function CartDialog({ isOpen, session, items, total, savedName, s
   const closeRef = useRef(null)
   const controls = useRef(new Map())
   const pendingFocus = useRef(null)
-  const showSent = sent && sent.items === items && sent.name === name && sent.notes === notes && sent.session === session
+  const showSent = sent && sent.session === session
   useLayoutEffect(() => {
     if (!pendingFocus.current) return
     const { index, action } = pendingFocus.current
@@ -39,9 +40,11 @@ export default function CartDialog({ isOpen, session, items, total, savedName, s
     if (!items.length || busy) return
     const popup = window.open('about:blank', '_blank')
     if (popup) popup.opener = null
-    const { data } = await save()
+    const { data } = await onPrepare(name, notes)
     if (!data || !data.items.length) { popup?.close(); return }
     const url = whatsappUrl(data.items, data.name, data.notes, item => item.unitPrice)
+    setDraft(null)
+    setSaved(false)
     setSent({ items: data.items, name: data.name, notes: data.notes, session, url })
     if (popup) popup.location.replace(url)
   }
@@ -64,10 +67,12 @@ export default function CartDialog({ isOpen, session, items, total, savedName, s
         <button className="primary" id="save-order" type="submit" disabled={busy}>Guardar datos del pedido</button>
         {saved && <p role="status">Datos guardados.</p>}
       </form>
+      {isOpen && <OrderHistory version={`${session}-${sent?.url || ''}`} />}
     </div>
     <div className="cart-footer">
       <div className="total"><span>Total estimado</span><strong id="cart-total">{money(total)}</strong></div>
       <p id="order-confirmation-notice">{ORDER_CONFIRMATION_NOTICE} El envío, si corresponde, se confirma aparte.</p>
+      <p className="order-help">Al continuar, se guarda una solicitud en tu historial y se vacía el carrito para el siguiente pedido.</p>
       <button id="checkout" className="primary whatsapp" disabled={!items.length || busy || Boolean(error)} aria-describedby="order-confirmation-notice" onClick={checkout}>Enviar pedido por WhatsApp <span aria-hidden="true">↗</span></button>
       <p id="checkout-status" role="status" hidden={!showSent}>Tu solicitud está lista para enviar. Confirma el envío del mensaje en WhatsApp y espera la confirmación de la cafetería. Si no se abrió, usa el enlace de abajo.</p>
       <a id="checkout-fallback" hidden={!showSent} href={sent?.url} target="_blank" rel="noopener noreferrer">Abrir mi pedido en WhatsApp ↗</a>

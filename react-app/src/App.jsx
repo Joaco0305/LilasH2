@@ -45,7 +45,7 @@ export default function App() {
     <main ref={mainRef} tabIndex={-1} className={path === '/' ? undefined : 'route-view'}><ErrorBoundary key={path}><PageContent path={path} catalog={catalog} onSelectProduct={setProduct} /></ErrorBoundary></main>
     <SiteFooter />
     {product && <ProductDialog key={product.id} product={product} busy={cart.busy} onClose={() => setProduct(null)} onAdd={addToCart} />}
-    <CartDialog isOpen={cartOpen} session={cartSession} items={cart.items} total={cart.total} savedName={cart.name} savedNotes={cart.notes} busy={cart.busy} error={cart.error} onRefresh={cart.refresh} onSave={cart.save} onClose={() => setCartOpen(false)} onChangeQuantity={cart.updateQuantity} onRemove={cart.remove} onBrowseMenu={() => { setCartOpen(false); navigate('/menu') }} />
+    <CartDialog isOpen={cartOpen} session={cartSession} items={cart.items} total={cart.total} savedName={cart.name} savedNotes={cart.notes} busy={cart.busy} error={cart.error} onRefresh={cart.refresh} onSave={cart.save} onPrepare={cart.prepare} onClose={() => setCartOpen(false)} onChangeQuantity={cart.updateQuantity} onRemove={cart.remove} onBrowseMenu={() => { setCartOpen(false); navigate('/menu') }} />
     <Toast message={message} onDismiss={dismissToast} />
   </>
 }

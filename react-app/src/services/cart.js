@@ -27,6 +27,11 @@ export async function loadCart() {
   await ensureSession()
   const { data, error } = await supabase.rpc('get_cart')
   if (error) throw error
+  const pending = localStorage.getItem('lilas-pending-order')
+  if (pending) {
+    const result = await supabase.from('order_history').select('id').eq('request_id', pending).limit(1)
+    if (!result.error && result.data.length) localStorage.removeItem('lilas-pending-order')
+  }
   return data
 }
 
@@ -36,4 +41,19 @@ export async function changeCart(action, payload) {
   if (error) throw error
   if (!data?.id || !Array.isArray(data.items)) throw new Error('Missing server confirmation')
   return data
+}
+
+export async function prepareOrder(requestId, name, notes) {
+  await ensureSession()
+  const { data, error } = await supabase.rpc('prepare_order', { request_id: requestId, customer_name: name, customer_notes: notes })
+  if (error) throw error
+  if (!data?.order?.id || !data?.cart) throw new Error('Missing order confirmation')
+  return data
+}
+
+export async function loadHistory() {
+  await ensureSession()
+  const { data, error } = await supabase.from('order_history').select('id,created_at,status,name,notes,total,order_history_items(*)').order('created_at', { ascending: false }).limit(50)
+  if (error) throw error
+  return data.map(order => ({ ...order, items: order.order_history_items.sort((a,b) => a.position-b.position).map(item => ({ ...item, id: item.product_id, name: item.product_name, unitPrice: item.unit_price })) }))
 }

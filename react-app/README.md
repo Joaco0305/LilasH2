@@ -94,6 +94,14 @@ El carrito y WhatsApp muestran **Total estimado** y aclaran que el precio y la d
 
 ## Supabase remoto
 
+### Historial de solicitudes (23 de noviembre de 2026)
+
+Al pulsar **Enviar pedido por WhatsApp**, se guarda una solicitud independiente con sus artículos y precios y se vacía el carrito para iniciar otro. El guardado es atómico; un reintento de la misma operación no duplica la solicitud. **Mis solicitudes anteriores**, dentro del carrito, permite consultar las últimas 50 de la sesión y volver a abrir el mensaje. El estado es **Preparada**: no acredita envío, aceptación ni pago.
+
+Las tablas `orders` y `order_items` siguen siendo el carrito editable. Los registros permanentes de solicitudes se encuentran en `order_history` y `order_history_items`, protegidos por RLS y sin permisos de escritura directa para visitantes. No se recuperan pedidos borrados antes de este cambio.
+
+Migración adicional: `20261123000100_order_history.sql`. Pruebas: `node tests/history.mjs` y `node tests/history-ui.mjs` (esta última usa las variables de Playwright ya documentadas). Detalles y límites en [HISTORIAL.md](../.docs/supabase-integration/HISTORIAL.md).
+
 Proyecto existente: `zasciyldjbqjlidznvsc` (Lilas), región São Paulo, organización con plan `free` verificado. No volver a crear el proyecto. Desde `react-app`, después de `npx supabase login`:
 
 ```powershell

@@ -62,7 +62,7 @@ try {
   await page.locator('#checkout').click()
   await page.waitForFunction(()=>window.orderUrl?.startsWith('https://wa.me/'))
   assert.ok(new URL(await page.evaluate(()=>window.orderUrl)).searchParams.get('text').includes('Bs 22.00'))
-  await page.getByRole('button',{name:'Quitar Frozzi de mora',exact:true}).click()
+  await page.locator('.history-order').waitFor()
   await page.getByText('Tu próximo antojo te espera',{exact:true}).waitFor()
   await page.reload()
   await page.locator('#open-cart').click()

@@ -1,6 +1,6 @@
 # Lilas · Cafetería
 
-SPA con React, JavaScript/JSX y Vite. Incluye catálogo de 18 productos, personalización de bebidas, carrito persistente en Supabase y preparación de pedidos por WhatsApp.
+SPA con React, JavaScript/JSX y Vite. Incluye catálogo de 18 productos, personalización de bebidas, carrito persistente en Supabase, historial de solicitudes con sus precios y preparación de pedidos por WhatsApp.
 
 ## Ejecutar
 

@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict'
+import { appendFile, mkdir } from 'node:fs/promises'
+import { createClient } from '@supabase/supabase-js'
+process.loadEnvFile('.env.local')
+const client=()=>createClient(process.env.VITE_SUPABASE_URL,process.env.VITE_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false}})
+const a=client(),b=client(),guest=client()
+const ok=r=>{assert.equal(r.error,null,r.error?.message);return r.data}
+await mkdir('../supabase/.temp',{recursive:true})
+for(const c of [a,b]){const d=ok(await c.auth.signInAnonymously());await appendFile('../supabase/.temp/test-users.txt',d.user.id+'\n')}
+const add=async(c,id='p1')=>ok(await c.rpc('change_cart',{action:'add',payload:{id,size:id==='p1'?'G':'U',quantity:2,extra:id==='p1'?'Mora':''}}))
+const prepare=async(c,request_id)=>c.rpc('prepare_order',{request_id,customer_name:'Prueba ficticia',customer_notes:'Sin datos reales'})
+assert.ok((await prepare(a,crypto.randomUUID())).error,'Empty cart rejected')
+const cart=await add(a)
+const key=crypto.randomUUID()
+const [one,retry]=await Promise.all([prepare(a,key),prepare(a,key)])
+const first=ok(one), repeated=ok(retry)
+assert.equal(first.order.id,repeated.order.id)
+assert.equal(first.order.total,40)
+assert.equal(first.order.items[0].name,'Frozzi de mora')
+assert.equal(first.cart.items.length,0)
+assert.equal(ok(await a.rpc('get_cart')).items.length,0)
+await add(a,'p45')
+const second=ok(await prepare(a,crypto.randomUUID()))
+assert.notEqual(first.order.id,second.order.id)
+assert.equal(second.order.total,16)
+let history=ok(await a.from('order_history').select('*,order_history_items(*)'))
+assert.equal(history.length,2)
+assert.equal(history.find(o=>o.id===first.order.id).order_history_items[0].unit_price,20)
+// Editing and deleting the next cart cannot remove historical lines.
+await add(a)
+ok(await a.from('orders').delete().eq('id',cart.id))
+assert.equal(ok(await a.from('order_history_items').select('id')).length,2)
+assert.equal(ok(await a.from('order_history').select('id')).length,2)
+assert.deepEqual(ok(await b.from('order_history').select('*')),[])
+assert.deepEqual(ok(await b.from('order_history_items').select('*')),[])
+assert.ok((await guest.from('order_history').select('*')).error)
+for(const c of [a,b]){
+ assert.ok((await c.from('order_history').update({total:1}).eq('id',first.order.id)).error)
+ assert.ok((await c.from('order_history').delete().eq('id',first.order.id)).error)
+ assert.ok((await c.from('order_history_items').update({unit_price:1}).eq('order_id',first.order.id)).error)
+ assert.ok((await c.from('order_history_items').delete().eq('order_id',first.order.id)).error)
+ assert.ok((await c.from('order_history').insert({owner_id:crypto.randomUUID(),request_id:crypto.randomUUID(),name:'',notes:'',total:1})).error)
+}
+assert.ok((await prepare(b,key)).error,'Other visitor cannot replay request')
+assert.equal(ok(await prepare(a,key)).order.id,first.order.id,'Retry after cart deletion returns existing order')
+assert.equal(ok(await a.from('order_history').select('id')).length,2)
+console.log('PASS history: two orders retained, atomic checkout, concurrent retry deduplicated, immutable snapshot, empty cart rejection and isolation.')

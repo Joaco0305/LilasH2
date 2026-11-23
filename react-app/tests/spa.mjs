@@ -91,7 +91,7 @@ try {
       await page.waitForFunction(expected => document.title === expected, title)
       assert.equal((await page.reload()).status(), 200)
       await page.waitForFunction(expected => document.title === expected, title)
-      await page.waitForFunction(() => document.querySelector('#cart-count')?.textContent === '1')
+      await page.waitForFunction(() => document.querySelector('#cart-count')?.textContent === '0')
     }
     await page.goto(base + '/menu/?campana=clase')
     await page.locator('#menu-title').waitFor()

@@ -1,5 +1,7 @@
 # Checklist de integración con Supabase
 
+Actualización del 23 de noviembre: historial independiente implementado y probado. Ver [HISTORIAL.md](HISTORIAL.md). Las menciones siguientes al alcance sin historial describen la entrega anterior.
+
 Estado: integración remota, esquema, CRUD, RLS y navegador verificados. Pendiente externo: publicar la versión actualizada en Netlify con sus variables públicas.
 
 - [x] Revisar proyecto y validar PDF. Fuente autorizada: `.docs/ER-CRUD/Lilas_entidad_y_matriz_CRUD.pdf`, página 1; extracción y captura en FUENTE-MODELO.md. Original movido sin alterar.

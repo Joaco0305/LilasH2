@@ -1,5 +1,7 @@
 # Análisis de modelo e integración
 
+Actualización del 23 de noviembre: la aplicación ahora conserva solicitudes preparadas en tablas históricas independientes. Modelo, permisos y pruebas de esta ampliación: [HISTORIAL.md](HISTORIAL.md). El análisis siguiente documenta la primera integración, anterior a esa ampliación.
+
 ## Fuente y alcance
 
 Fuente autorizada: `.docs/ER-CRUD/Lilas_entidad_y_matriz_CRUD.pdf`, página 1. Texto y captura en [FUENTE-MODELO.md](FUENTE-MODELO.md). `Foro3.pdf` es una evidencia de seguridad y no define el modelo; se conserva intacto.

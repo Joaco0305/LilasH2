@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { itemKey, validItem } from '../utils/cart.js'
-import { cartError, changeCart, loadCart } from '../services/cart.js'
+import { cartError, changeCart, loadCart, prepareOrder } from '../services/cart.js'
 
 const EMPTY = { id: null, items: [], total: 0, name: '', notes: '' }
 
@@ -53,5 +53,24 @@ export default function useCart() {
     updateQuantity: (key, quantity) => mutate(quantity === 0 ? 'remove' : 'quantity', { lineId: lineId(key), quantity }),
     remove: key => mutate('remove', { lineId: lineId(key) }),
     save: (name, notes) => mutate('metadata', { name, notes }),
+    async prepare(name, notes) {
+      if (locked.current) return { error: 'Espera a que termine la operación anterior.' }
+      locked.current = true
+      setBusy(true)
+      try {
+        // Persist only an opaque retry ID, never personal fields. A lost response can be retried safely.
+        let requestId = localStorage.getItem('lilas-pending-order')
+        if (!requestId) { requestId = crypto.randomUUID(); localStorage.setItem('lilas-pending-order', requestId) }
+        const data = await prepareOrder(requestId, name, notes)
+        setCart(data.cart)
+        setError('')
+        localStorage.removeItem('lilas-pending-order')
+        return { data: data.order }
+      } catch (cause) {
+        const message = cartError(cause)
+        setError(message)
+        return { error: message }
+      } finally { locked.current = false; setBusy(false) }
+    },
   }
 }
