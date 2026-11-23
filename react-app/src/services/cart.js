@@ -50,10 +50,3 @@ export async function prepareOrder(requestId, name, notes) {
   if (!data?.order?.id || !data?.cart) throw new Error('Missing order confirmation')
   return data
 }
-
-export async function loadHistory() {
-  await ensureSession()
-  const { data, error } = await supabase.from('order_history').select('id,created_at,status,name,notes,total,order_history_items(*)').order('created_at', { ascending: false }).limit(50)
-  if (error) throw error
-  return data.map(order => ({ ...order, items: order.order_history_items.sort((a,b) => a.position-b.position).map(item => ({ ...item, id: item.product_id, name: item.product_name, unitPrice: item.unit_price })) }))
-}

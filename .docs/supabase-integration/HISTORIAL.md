@@ -9,7 +9,7 @@ Cambio aplicado el 23 de noviembre de 2026. Antes, `orders` y `order_items` solo
 - `order_history_items`: copia de producto, nombre, tamaño, opciones, cantidad y precio unitario de ese momento. No depende de relaciones al catálogo que puedan eliminar las líneas históricas.
 - `prepare_order`: guarda el historial y sus artículos y vacía el carrito en una sola transacción. Si algo falla, todo se revierte. Un UUID por intento evita duplicados al reintentar una respuesta perdida; llamadas simultáneas con la misma clave devuelven la misma solicitud.
 - El cliente conserva solo el identificador de reintento en almacenamiento local. Al actualizar el carrito comprueba si la solicitud pendiente ya existe para recuperar la operación.
-- El botón de WhatsApp espera el guardado remoto y usa la copia histórica. El visitante puede empezar otro pedido inmediatamente. El historial permite abrir otra vez el mensaje sin crear otra solicitud.
+- El botón de WhatsApp espera el guardado remoto y usa la copia histórica. El visitante puede empezar otro pedido inmediatamente. El historial no se muestra al cliente; se conserva para consulta autorizada en Supabase.
 
 ## Permisos
 
@@ -19,7 +19,7 @@ La eliminación administrativa de una cuenta Auth elimina sus registros en casca
 
 ## Interfaz
 
-“Mis solicitudes anteriores” está dentro del carrito. Muestra las últimas 50 de la sesión actual, con fecha, estado, importe y detalles desplegables. No hay administrador ni historial compartido entre dispositivos. Si se pierde la sesión anónima, esos registros permanecen en la base pero el visitante ya no tiene acceso a ellos.
+Por solicitud del usuario, se retiró el apartado “Mis solicitudes anteriores” del carrito. Se eliminaron el componente, su consulta de listado y sus estilos. Las tablas y la protección RLS permanecen sin cambios. No hay administrador ni historial compartido entre dispositivos. Si se pierde la sesión anónima, esos registros permanecen en la base pero el visitante ya no tiene acceso a ellos.
 
 `prepared` significa **solicitud preparada**, no enviada, pagada ni aceptada. Abrir WhatsApp no permite comprobar si el usuario envió el mensaje. No se reconstruyeron compras antiguas ni se convirtieron carritos existentes en compras ficticias.
 
@@ -33,3 +33,7 @@ La eliminación administrativa de una cuenta Auth elimina sus registros en casca
 Los escenarios anteriores se ejecutan contra Supabase real. La apertura de WhatsApp se intercepta para no enviar mensajes. Los usuarios ficticios se registran para su limpieza, incluyendo sus solicitudes históricas.
 
 Resultado de esta ejecución: lint y build aprobados; 8 unitarias aprobadas; history, history-ui, remote-ui, confirmation (360/390/1440) y SPA (desarrollo/build) aprobados. Se eliminaron los 10 usuarios ficticios creados por estas pruebas y sus registros asociados. Captura revisada: [historial móvil](../evidencias/historial-390.png). La aplicación previa de Netlify seguirá sin crear historial hasta desplegar el código actualizado.
+
+## Ajuste de visibilidad
+
+Verificado: lint y build aprobados; `tests/history-ui.mjs` preparó dos solicitudes y comprobó que ambas permanecen en Supabase, mientras el historial no se renderiza antes ni después de recargar. La política de lectura por propietario permanece; este ajuste retira la interfaz, no cambia los permisos de API. Captura: [carrito sin historial](../evidencias/carrito-sin-historial-390.png).

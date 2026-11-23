@@ -4,7 +4,6 @@ import { money } from '../utils/format.js'
 import { ORDER_CONFIRMATION_NOTICE } from '../config.js'
 import Modal from './Modal.jsx'
 import CartItem from './CartItem.jsx'
-import OrderHistory from './OrderHistory.jsx'
 
 export default function CartDialog({ isOpen, session, items, total, savedName, savedNotes, busy, error, onRefresh, onSave, onPrepare, onClose, onChangeQuantity, onRemove, onBrowseMenu }) {
   const [draft, setDraft] = useState(null)
@@ -67,12 +66,11 @@ export default function CartDialog({ isOpen, session, items, total, savedName, s
         <button className="primary" id="save-order" type="submit" disabled={busy}>Guardar datos del pedido</button>
         {saved && <p role="status">Datos guardados.</p>}
       </form>
-      {isOpen && <OrderHistory version={`${session}-${sent?.url || ''}`} />}
     </div>
     <div className="cart-footer">
       <div className="total"><span>Total estimado</span><strong id="cart-total">{money(total)}</strong></div>
       <p id="order-confirmation-notice">{ORDER_CONFIRMATION_NOTICE} El envío, si corresponde, se confirma aparte.</p>
-      <p className="order-help">Al continuar, se guarda una solicitud en tu historial y se vacía el carrito para el siguiente pedido.</p>
+      <p className="order-help">Al continuar, se prepara tu solicitud y se vacía el carrito para el siguiente pedido.</p>
       <button id="checkout" className="primary whatsapp" disabled={!items.length || busy || Boolean(error)} aria-describedby="order-confirmation-notice" onClick={checkout}>Enviar pedido por WhatsApp <span aria-hidden="true">↗</span></button>
       <p id="checkout-status" role="status" hidden={!showSent}>Tu solicitud está lista para enviar. Confirma el envío del mensaje en WhatsApp y espera la confirmación de la cafetería. Si no se abrió, usa el enlace de abajo.</p>
       <a id="checkout-fallback" hidden={!showSent} href={sent?.url} target="_blank" rel="noopener noreferrer">Abrir mi pedido en WhatsApp ↗</a>

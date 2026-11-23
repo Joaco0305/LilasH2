@@ -62,7 +62,7 @@ try {
   await page.locator('#checkout').click()
   await page.waitForFunction(()=>window.orderUrl?.startsWith('https://wa.me/'))
   assert.ok(new URL(await page.evaluate(()=>window.orderUrl)).searchParams.get('text').includes('Bs 22.00'))
-  await page.locator('.history-order').waitFor()
+  assert.equal(await page.locator('.history-order').count(),0)
   await page.getByText('Tu próximo antojo te espera',{exact:true}).waitFor()
   await page.reload()
   await page.locator('#open-cart').click()
